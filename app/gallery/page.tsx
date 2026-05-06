@@ -7,72 +7,11 @@ import { Button } from '@/components/ui/button'
 import { Sparkles, ArrowRight, Camera } from 'lucide-react'
 import { motion } from 'framer-motion'
 
+import { GALLERY_ITEMS } from '@/lib/data'
+
 export default function Gallery() {
-  const galleryItems = [
-    {
-      id: 1,
-      title: 'Blinged Water Bottle',
-      category: 'Bedazzled Designs',
-      image: 'https://media.base44.com/images/public/69f90aa4aed3d1c3e1966f53/5bd216c04_image.png',
-      description: 'Hand-placed rhinestones with custom name detailing.',
-    },
-    {
-      id: 2,
-      title: 'Faith Scripture Shirt',
-      category: 'Faith Collection',
-      image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&auto=format&fit=crop',
-      description: 'Soft cotton tee with metallic gold scripture print.',
-    },
-    {
-      id: 3,
-      title: 'Custom Photo Mug',
-      category: 'Custom Mugs',
-      image: 'https://images.unsplash.com/photo-1514228742587-6b1558fbed20?w=800&auto=format&fit=crop',
-      description: 'Vibrant photo transfer with personalized message.',
-    },
-    {
-      id: 4,
-      title: 'Business Branding Kit',
-      category: 'Business Branding',
-      image: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=800&auto=format&fit=crop',
-      description: 'Coordinated stickers and labels for a boutique brand.',
-    },
-    {
-      id: 5,
-      title: 'Glitter Ombre Tumbler',
-      category: 'Bedazzled Designs',
-      image: 'https://images.unsplash.com/photo-1570857502809-08184874388e?w=800&auto=format&fit=crop',
-      description: 'Double-walled tumbler with custom glitter finish.',
-    },
-    {
-      id: 6,
-      title: 'Inspirational Hooded Sweatshirt',
-      category: 'Printed Apparel',
-      image: 'https://images.unsplash.com/photo-1554568218-0f1715e72254?w=800&auto=format&fit=crop',
-      description: 'Premium heavyweight hoodie with custom quote.',
-    },
-    {
-      id: 7,
-      title: 'Luxe Rhinestone Phone Case',
-      category: 'Bedazzled Designs',
-      image: 'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=800&auto=format&fit=crop',
-      description: 'Full-coverage bedazzled case for ultimate sparkle.',
-    },
-    {
-      id: 8,
-      title: 'Personalized Gift Mug',
-      category: 'Custom Mugs',
-      image: 'https://images.unsplash.com/photo-1521485950395-bcfb8fc9bd06?w=800&auto=format&fit=crop',
-      description: 'Beautiful ceramic mug with handwritten-style name.',
-    },
-    {
-      id: 9,
-      title: 'Custom Brand Stickers',
-      category: 'Stickers & Labels',
-      image: 'https://images.unsplash.com/photo-1589948182061-2b860e382e97?w=800&auto=format&fit=crop',
-      description: 'Durable vinyl stickers for professional packaging.',
-    },
-  ]
+  const galleryItems = GALLERY_ITEMS
+
 
   const containerVariants = {
     hidden: { opacity: 0 },

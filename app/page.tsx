@@ -8,6 +8,8 @@ import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Heart, Sparkles, Gift, Palette, ArrowRight, Star, Quote } from 'lucide-react'
 
+import { FEATURED_ITEMS } from '@/lib/data'
+
 export default function Home() {
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -24,38 +26,6 @@ export default function Home() {
     visible: { opacity: 1, y: 0 }
   }
 
-  const FEATURED_ITEMS = [
-    {
-      id: 1,
-      name: 'Personalized Blinged Water Bottle / Tumbler',
-      by: 'Desiree',
-      category: 'bedazzled',
-      startingPrice: 'Starting at $25',
-      description: 'Your name or message bedazzled in sparkling rhinestones on a tumbler or water bottle. Choose your colours, theme, and design.',
-      image: 'https://media.base44.com/images/public/69f90aa4aed3d1c3e1966f53/5bd216c04_image.png',
-      tags: ['Rhinestones', 'Personalized', 'Gift Idea'],
-    },
-    {
-    id: 2,
-    name: 'Custom T-Shirt',
-    by: 'Rire',
-    category: 'printed',
-    startingPrice: 'Starting at $18',
-    description: 'Design your own t-shirt with a custom print — your name, favourite quote, faith message, birthday design, or business logo.',
-    image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=600&auto=format&fit=crop',
-    tags: ['T-Shirt', 'Custom Print', 'Fashion'],
-  },
-   {
-    id: 3,
-    name: 'Custom Stickers & Labels',
-    by: 'Rire',
-    category: 'printed',
-    startingPrice: 'Starting at $8',
-    description: 'High-quality stickers and labels for personal use, businesses, gifts, packaging, or special events.',
-    image: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&auto=format&fit=crop',
-    tags: ['Stickers', 'Labels', 'Branding'],
-  },
-  ];
 
   return (
     <div className="min-h-screen flex flex-col bg-background overflow-x-hidden">
