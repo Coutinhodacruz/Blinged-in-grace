@@ -7,10 +7,26 @@ import { Button } from '@/components/ui/button'
 import { Sparkles, ArrowRight, Camera } from 'lucide-react'
 import { motion } from 'framer-motion'
 
-import { GALLERY_ITEMS } from '@/lib/data'
+import { useEffect, useState } from 'react'
 
 export default function Gallery() {
-  const galleryItems = GALLERY_ITEMS
+  const [galleryItems, setGalleryItems] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchGallery = async () => {
+      try {
+        const res = await fetch('/api/gallery')
+        const data = await res.json()
+        setGalleryItems(data)
+      } catch (error) {
+        console.error('Failed to fetch gallery:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchGallery()
+  }, [])
 
 
   const containerVariants = {
@@ -54,46 +70,52 @@ export default function Gallery() {
         {/* Gallery Grid */}
         <section className="py-20 px-6 sm:px-8">
           <div className="max-w-7xl mx-auto">
-            <motion.div 
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10"
-            >
-              {galleryItems.map((item) => (
-                <motion.div
-                  key={item.id}
-                  variants={itemVariants}
-                  className="group rounded-3xl overflow-hidden bg-card border border-border/50 hover:shadow-2xl transition-all duration-500"
-                >
-                  <div className="aspect-square overflow-hidden relative">
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-8">
-                       <p className="text-white text-sm font-medium italic">Handcrafted by Blinged in Grace</p>
+            {loading ? (
+              <div className="flex justify-center items-center h-64">
+                <Sparkles className="animate-pulse text-primary" size={40} />
+              </div>
+            ) : (
+              <motion.div 
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10"
+              >
+                {galleryItems.map((item) => (
+                  <motion.div
+                    key={item._id}
+                    variants={itemVariants}
+                    className="group rounded-3xl overflow-hidden bg-card border border-border/50 hover:shadow-2xl transition-all duration-500"
+                  >
+                    <div className="aspect-square overflow-hidden relative">
+                      <img
+                        src={item.imageUrl || item.image}
+                        alt={item.title}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-8">
+                         <p className="text-white text-sm font-medium italic">Handcrafted by Blinged in Grace</p>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="p-8">
-                    <div className="flex items-center gap-2 mb-3">
-                       <span className="text-[10px] uppercase tracking-widest font-bold text-accent bg-accent/10 px-2 py-0.5 rounded">
-                          {item.category}
-                       </span>
+                    <div className="p-8">
+                      <div className="flex items-center gap-2 mb-3">
+                         <span className="text-[10px] uppercase tracking-widest font-bold text-accent bg-accent/10 px-2 py-0.5 rounded">
+                            {item.category}
+                         </span>
+                      </div>
+                      <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+                        {item.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {item.description}
+                      </p>
                     </div>
-                    <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
-                      {item.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {item.description}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
           </div>
         </section>
 

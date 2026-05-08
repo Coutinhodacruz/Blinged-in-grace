@@ -18,7 +18,9 @@ export default function Contact() {
   })
 
   const [submitted, setSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [apiError, setApiError] = useState<string | null>(null)
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
@@ -36,22 +38,40 @@ export default function Contact() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setApiError(null)
 
     if (!validateForm()) return
 
-    // Simulate form submission
-    setSubmitted(true)
-    
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setFormData({
-        name: '',
-        email: '',
-        subject: '',
-        message: '',
+    setIsSubmitting(true)
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
       })
-      setSubmitted(false)
-    }, 3000)
+
+      if (response.ok) {
+        setSubmitted(true)
+        setFormData({
+          name: '',
+          email: '',
+          subject: '',
+          message: '',
+        })
+        // Clear success message after 5 seconds
+        setTimeout(() => setSubmitted(false), 5000)
+      } else {
+        const data = await response.json()
+        setApiError(data.message || 'Something went wrong. Please try again later.')
+      }
+    } catch (error) {
+      setApiError('Unable to send message. Please check your internet connection.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleChange = (
@@ -192,7 +212,21 @@ export default function Contact() {
                         Message Sent Successfully!
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        Thank you for reaching out. We&apos;ll get back to you as soon as possible.
+                        Thank you for reaching out. We&apos;ve sent you a confirmation email and will get back to you shortly.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {apiError && (
+                  <div className="mb-8 p-4 bg-destructive/10 border border-destructive rounded-lg flex items-start gap-3">
+                    <AlertCircle className="w-6 h-6 text-destructive flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h3 className="font-bold text-foreground mb-1">
+                        Failed to Send Message
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {apiError}
                       </p>
                     </div>
                   </div>
@@ -300,9 +334,14 @@ export default function Contact() {
                     type="submit"
                     size="lg"
                     className="w-full rounded-full"
-                    disabled={submitted}
+                    disabled={isSubmitting}
                   >
-                    {submitted ? 'Sending...' : 'Send Message'}
+                    {isSubmitting ? (
+                      <>
+                        <span className="mr-2 animate-spin">⏳</span>
+                        Sending...
+                      </>
+                    ) : 'Send Message'}
                   </Button>
                 </form>
               </Card>

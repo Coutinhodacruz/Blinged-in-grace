@@ -8,9 +8,27 @@ import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Heart, Sparkles, Gift, Palette, ArrowRight, Star, Quote } from 'lucide-react'
 
-import { FEATURED_ITEMS } from '@/lib/data'
+import { useEffect, useState } from 'react'
 
 export default function Home() {
+  const [featuredItems, setFeaturedItems] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+        const res = await fetch('/api/products')
+        const data = await res.json()
+        // Filter for featured items
+        setFeaturedItems(data.filter((item: any) => item.isFeatured))
+      } catch (error) {
+        console.error('Failed to fetch featured items:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchFeatured()
+  }, [])
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -58,54 +76,62 @@ export default function Home() {
               </Button>
             </motion.div>
 
-            <motion.div 
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            >
-              {FEATURED_ITEMS.map((item) => (
-                <motion.div key={item.id} variants={itemVariants}>
-                  <div className="group rounded-2xl overflow-hidden bg-card border border-border/50 hover:shadow-xl transition-all duration-300 flex flex-col h-full">
-                    <div className="relative aspect-square overflow-hidden bg-muted">
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                      />
-                      <div className="absolute top-4 right-4 bg-background/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm">
-                        <span className="text-xs font-bold text-primary">{item.startingPrice}</span>
-                      </div>
-                    </div>
-                    <div className="p-6 flex flex-col flex-grow">
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {item.tags.map(tag => (
-                          <span key={tag} className="text-[10px] uppercase tracking-wider px-2 py-0.5 bg-secondary rounded-md text-muted-foreground font-medium">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                      <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
-                        {item.name}
-                      </h3>
-                      <p className="text-sm text-muted-foreground mb-6 line-clamp-2 flex-grow">
-                        {item.description}
-                      </p>
-                      <div className="pt-4 border-t border-border/50 flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center text-[10px] font-bold text-accent">D</div>
-                          <span className="text-xs text-muted-foreground">by <span className="font-semibold text-foreground">{item.by}</span></span>
+            {loading ? (
+              <div className="flex justify-center items-center h-64">
+                <Sparkles className="animate-pulse text-primary" size={40} />
+              </div>
+            ) : (
+              <motion.div 
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+              >
+                {featuredItems.map((item) => (
+                  <motion.div key={item._id} variants={itemVariants}>
+                    <div className="group rounded-2xl overflow-hidden bg-card border border-border/50 hover:shadow-xl transition-all duration-300 flex flex-col h-full">
+                      <div className="relative aspect-square overflow-hidden bg-muted">
+                        <img
+                          src={item.imageUrl || item.image}
+                          alt={item.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        />
+                        <div className="absolute top-4 right-4 bg-background/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm">
+                          <span className="text-xs font-bold text-primary">${item.price}</span>
                         </div>
-                        <Link href={`/shop`} className="text-xs font-bold text-primary hover:underline uppercase tracking-widest">
-                          Details
-                        </Link>
+                      </div>
+                      <div className="p-6 flex flex-col flex-grow">
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {item.tags?.map((tag: string) => (
+                            <span key={tag} className="text-[10px] uppercase tracking-wider px-2 py-0.5 bg-secondary rounded-md text-muted-foreground font-medium">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                        <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+                          {item.name}
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-6 line-clamp-2 flex-grow">
+                          {item.description}
+                        </p>
+                        <div className="pt-4 border-t border-border/50 flex justify-between items-center">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center text-[10px] font-bold text-accent">
+                              {item.by?.[0] || 'B'}
+                            </div>
+                            <span className="text-xs text-muted-foreground">by <span className="font-semibold text-foreground">{item.by || 'Blinged in Grace'}</span></span>
+                          </div>
+                          <Link href={`/shop`} className="text-xs font-bold text-primary hover:underline uppercase tracking-widest">
+                            Details
+                          </Link>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
           </div>
         </section>
 

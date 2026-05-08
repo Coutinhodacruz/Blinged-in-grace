@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Heart, Sparkles, Palette, Gift, MessageSquare, 
   Calendar, CheckCircle2, ArrowRight, ArrowLeft,
-  ShoppingBag, Send, Camera
+  ShoppingBag, Send, Camera, Loader2
 } from 'lucide-react';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/footer';
@@ -16,6 +16,7 @@ import Link from 'next/link';
 export default function CustomOrders() {
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [formData, setFormData] = useState({
     category: '',
@@ -26,6 +27,23 @@ export default function CustomOrders() {
     date: '',
     file: null as File | null,
   });
+
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setFormData({ ...formData, file });
+    
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setPreviewUrl(null);
+    }
+  };
 
   const steps = [
     { id: 1, title: 'The Vision', icon: Sparkles },
@@ -43,13 +61,52 @@ export default function CustomOrders() {
   const nextStep = () => setStep(s => Math.min(s + 1, 3));
   const prevStep = () => setStep(s => Math.max(s - 1, 1));
 
-  const handleComplete = (e: React.FormEvent) => {
+  const handleComplete = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    // Simulate API call
-    setTimeout(() => {
-        // Optional: Reset or Redirect
-    }, 5000);
+    setIsSubmitting(true);
+    
+    try {
+        let inspirationImageUrl = '';
+        
+        // 1. Upload image if exists
+        if (formData.file) {
+            const uploadFormData = new FormData();
+            uploadFormData.append('file', formData.file);
+            
+            const uploadRes = await fetch('/api/upload', {
+                method: 'POST',
+                body: uploadFormData
+            });
+            
+            if (uploadRes.ok) {
+                const uploadData = await uploadRes.json();
+                inspirationImageUrl = uploadData.url;
+            }
+        }
+
+        // 2. Submit order
+        const { file: _, ...orderData } = formData;
+        const orderRes = await fetch('/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                ...orderData,
+                inspirationImageUrl
+            })
+        });
+
+        if (orderRes.ok) {
+            setSubmitted(true);
+        } else {
+            const error = await orderRes.json();
+            alert(error.message || 'Failed to submit order');
+        }
+    } catch (error) {
+        console.error('Submission error:', error);
+        alert('An error occurred. Please try again.');
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   const isStep1Valid = !!formData.category;
@@ -199,26 +256,34 @@ export default function CustomOrders() {
                              <div className="relative group">
                                 <input 
                                   type="file"
-                                  onChange={(e) => setFormData({ ...formData, file: e.target.files?.[0] || null })}
+                                  onChange={handleFileChange}
                                   accept="image/*"
                                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
                                 />
                                 <div className={`w-full border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center transition-all duration-300 ${formData.file ? 'border-primary bg-primary/5' : 'border-border group-hover:border-primary/50 bg-secondary/5'}`}>
-                                   {formData.file ? (
-                                      <div className="flex flex-col items-center">
-                                         <CheckCircle2 className="w-8 h-8 text-primary mb-2" />
-                                         <span className="text-sm font-bold text-foreground line-clamp-1">{formData.file.name}</span>
-                                         <span className="text-xs text-muted-foreground mt-1">File selected</span>
-                                      </div>
-                                   ) : (
-                                      <div className="flex flex-col items-center">
-                                         <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
-                                            <Camera className="w-6 h-6 text-primary" />
-                                         </div>
-                                         <span className="text-sm font-bold text-foreground">Click or Drag to Upload</span>
-                                         <span className="text-xs text-muted-foreground mt-1">Upload an image of what you'd like (Max 5MB)</span>
-                                      </div>
-                                   )}
+                                   {previewUrl ? (
+                                       <div className="relative w-full aspect-video rounded-xl overflow-hidden">
+                                          <img 
+                                            src={previewUrl} 
+                                            alt="Preview" 
+                                            className="w-full h-full object-cover"
+                                          />
+                                          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                                             <div className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-2">
+                                                <CheckCircle2 className="w-4 h-4 text-primary" />
+                                                <span className="text-[10px] font-bold text-foreground uppercase tracking-widest">Image Selected</span>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    ) : (
+                                       <div className="flex flex-col items-center">
+                                          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
+                                             <Camera className="w-6 h-6 text-primary" />
+                                          </div>
+                                          <span className="text-sm font-bold text-foreground">Click or Drag to Upload</span>
+                                          <span className="text-xs text-muted-foreground mt-1">Upload an image of what you'd like (Max 5MB)</span>
+                                       </div>
+                                    )}
                                 </div>
                              </div>
                           </div>
@@ -290,12 +355,16 @@ export default function CustomOrders() {
                               <ArrowLeft className="w-4 h-4" /> Go Back
                            </Button>
                            <Button 
-                             disabled={!isStep3Valid}
+                             disabled={!isStep3Valid || isSubmitting}
                              onClick={handleComplete}
                              size="lg" 
-                             className="rounded-full px-12 h-14 bg-accent text-accent-foreground hover:bg-accent/90"
+                             className="rounded-full px-12 h-14 bg-accent text-accent-foreground hover:bg-accent/90 min-w-[240px]"
                            >
-                             Submit Your Vision <Send className="w-4 h-4 ml-2" />
+                             {isSubmitting ? (
+                               <>Processing Vision <Loader2 className="w-4 h-4 ml-2 animate-spin" /></>
+                             ) : (
+                               <>Submit Your Vision <Send className="w-4 h-4 ml-2" /></>
+                             )}
                            </Button>
                         </div>
                       </motion.div>
