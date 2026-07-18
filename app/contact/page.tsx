@@ -126,7 +126,7 @@ export default function Contact() {
                       Email
                     </h3>
                     <p className="text-muted-foreground text-sm">
-                      info@blingedinsgrace.com
+                    blingedingrace@gmail.com
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
                       We typically respond within 24 hours

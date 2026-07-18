@@ -1,22 +1,20 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ICategory extends Document {
-    id: string;
+    id: number;
     name: string;
+    subtitle: string;
     image: string;
-    color: string;
-    description: string;
-    items: string[];
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 const CategorySchema: Schema = new Schema(
     {
-        id: { type: String, required: true, unique: true },
+        id: { type: Number, required: true, unique: true },
         name: { type: String, required: true },
+        subtitle: { type: String, required: true },
         image: { type: String, required: true },
-        color: { type: String, required: true },
-        description: { type: String, required: true },
-        items: [{ type: String }],
     },
     { timestamps: true }
 );
