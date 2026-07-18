@@ -80,7 +80,7 @@ export default function Gallery() {
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10"
+                className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 lg:gap-10"
               >
                 {galleryItems.map((item) => (
                   <motion.div
@@ -99,13 +99,13 @@ export default function Gallery() {
                       </div>
                     </div>
 
-                    <div className="p-8">
+                    <div className="p-4 md:p-8">
                       <div className="flex items-center gap-2 mb-3">
                          <span className="text-[10px] uppercase tracking-widest font-bold text-accent bg-accent/10 px-2 py-0.5 rounded">
                             {item.category}
                          </span>
                       </div>
-                      <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+                      <h3 className="text-sm md:text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
                         {item.title}
                       </h3>
                       <p className="text-sm text-muted-foreground leading-relaxed">
